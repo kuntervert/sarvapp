@@ -19,7 +19,8 @@
             v-model="selectedFilter"
             :items="allFilters"
             label="Select filter"
-            item-text="Select filter"
+            item-text="name"
+            item-value="string"
             style="max-width:10%; margin-left: 1%"
             clearable
           ></v-select>
@@ -29,7 +30,7 @@
             v-model="keyWord"
           >kirj sii</v-text-field>
         </v-row>
-        <v-btn>Otsi</v-btn>
+        <v-btn @click="search()">Otsi</v-btn>
         <v-pagination :length="totalPages" total-visible="8" v-model="page" @input="pageChange"></v-pagination>
         <v-simple-table v-if="specimens" style="max-width:40%">
           <template v-slot:default>
@@ -69,7 +70,7 @@ export default {
     specimens: null,
     totalPages: null,
     page: 1,
-    allFilters: ["exact", "contains", "starts with", "ends with"],
+    allFilters: null,
     allFields: null,
     selectedFilter: null,
     selectedField: null,
@@ -79,6 +80,32 @@ export default {
     this.startingData();
   },
   methods: {
+    async search() {
+      let searchResults = null;
+      let filter = this.selectedFilter;
+
+      let field = this.selectedField;
+      let key = this.keyWord;
+      if (typeof key === "number") {
+        filter = "i" + filter;
+      }
+      console.log(filter);
+      console.log(key);
+      if (filter && field && key) {
+        await axios
+          .get(
+            `https://api.geocollections.info/specimen/?${field}__${filter}=${key}`
+          )
+          .then(response => {
+            searchResults = response.data;
+          });
+      } else {
+        return;
+      }
+      console.log(searchResults);
+      this.totalPages = Math.ceil(searchResults.count / 50);
+      this.specimens = searchResults.results;
+    },
     async startingData() {
       let firstData = null;
       await axios
@@ -89,6 +116,28 @@ export default {
       this.specimens = firstData.results;
       this.totalPages = Math.ceil(firstData.count / 50);
       this.allFields = Object.keys(this.specimens[0]);
+      this.allFilters = [
+        {
+          id: 1,
+          name: "exact",
+          string: "exact"
+        },
+        {
+          id: 2,
+          name: "contains",
+          string: "contains"
+        },
+        {
+          id: 3,
+          name: "starts with",
+          string: "startswith"
+        },
+        {
+          id: 4,
+          name: "ends with",
+          string: "endswith"
+        }
+      ];
     },
     async pageChange(page) {
       let data = null;
@@ -101,8 +150,7 @@ export default {
         });
       console.log(data);
       this.specimens = data.results;
-    },
-    async search() {}
+    }
   }
 };
 </script>
