@@ -5,33 +5,11 @@
       <v-col class="mb-5" cols="12">
         <h2 class="headline font-weight-bold mb-3">Specimen search engine</h2>
       </v-col>
+      <Search @clicked="search" :allFields="allFields" :allFilters="allFilters" />
+
       <v-col align="center" justify="center" class="mb-5" cols="12">
-        <v-row align="center" justify="center">
-          <v-select
-            v-model="selectedField"
-            :items="allFields"
-            label="Choose field"
-            item-text="Choose field"
-            style="max-width:10%;"
-            clearable
-          ></v-select>
-          <v-select
-            v-model="selectedFilter"
-            :items="allFilters"
-            label="Select filter"
-            item-text="name"
-            item-value="string"
-            style="max-width:10%; margin-left: 1%"
-            clearable
-          ></v-select>
-          <v-text-field
-            placeholder="Enter search keyword..."
-            style="max-width:15%; margin-left: 1%"
-            v-model="keyWord"
-          >kirj sii</v-text-field>
-        </v-row>
-        <v-btn @click="search()">Otsi</v-btn>
         <v-pagination :length="totalPages" total-visible="8" v-model="page" @input="pageChange"></v-pagination>
+        <v-btn v-if="searchView" @click="startingData(); searchView = false">Clear</v-btn>
         <v-simple-table v-if="specimens" style="max-width:40%">
           <template v-slot:default>
             <thead>
@@ -63,51 +41,60 @@
 
 <script>
 import axios from "axios";
+import Search from "@/components/Search";
 export default {
   name: "HelloWorld",
-
+  components: {
+    Search
+  },
   data: () => ({
     specimens: null,
     totalPages: null,
     page: 1,
     allFilters: null,
     allFields: null,
-    selectedFilter: null,
-    selectedField: null,
-    keyWord: null
+    searchView: false,
+    latestApi: null
   }),
   mounted() {
     this.startingData();
   },
   methods: {
-    async search() {
+    async search(rows) {
       let searchResults = null;
-      let filter = this.selectedFilter;
-
-      let field = this.selectedField;
-      let key = this.keyWord;
-      if (typeof key === "number") {
-        filter = "i" + filter;
-      }
-      console.log(filter);
-      console.log(key);
-      if (filter && field && key) {
-        await axios
-          .get(
-            `https://api.geocollections.info/specimen/?${field}__${filter}=${key}`
-          )
-          .then(response => {
-            searchResults = response.data;
-          });
-      } else {
+      let check = true;
+      let searchApi = `https://api.geocollections.info/specimen/?paginate_by=50`;
+      rows.forEach(element => {
+        if (
+          element.field === null ||
+          element.filter === null ||
+          element.keyWord === null ||
+          element.keyWord === ""
+        ) {
+          check = false;
+        } else {
+          searchApi =
+            searchApi +
+            `&${element.field}__${element.filter}=${element.keyWord}`;
+        }
+      });
+      if (check === false) {
+        alert("Please fill all fields");
         return;
       }
+      console.log(searchApi);
+      await axios.get(searchApi).then(response => {
+        searchResults = response.data;
+      });
+      this.latestApi = searchApi;
+      this.searchView = true;
       console.log(searchResults);
       this.totalPages = Math.ceil(searchResults.count / 50);
       this.specimens = searchResults.results;
     },
     async startingData() {
       let firstData = null;
+      this.page = 1;
       await axios
         .get("https://api.geocollections.info/specimen/?paginate_by=50&page=1")
         .then(response => {
@@ -141,13 +128,19 @@ export default {
     },
     async pageChange(page) {
       let data = null;
-      await axios
-        .get(
-          `https://api.geocollections.info/specimen/?paginate_by=50&page=${page}`
-        )
-        .then(response => {
+      if (this.searchView) {
+        await axios.get(this.latestApi + `&page=${page}`).then(response => {
           data = response.data;
         });
+      } else {
+        await axios
+          .get(
+            `https://api.geocollections.info/specimen/?paginate_by=50&page=${page}`
+          )
+          .then(response => {
+            data = response.data;
+          });
+      }
       console.log(data);
       this.specimens = data.results;
     }

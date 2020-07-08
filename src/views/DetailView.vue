@@ -1,5 +1,8 @@
 <template>
-  <v-row class="text-left">
+  <v-col class="text-left">
+    <v-btn @click="$router.push('/')">
+      <v-icon>mdi-arrow-left</v-icon>Return
+    </v-btn>
     <v-col style="max-width:50%" class="mb-5" cols="12">
       <v-simple-table v-if="specimens">
         <template v-slot:default>
@@ -18,7 +21,7 @@
         </template>
       </v-simple-table>
     </v-col>
-  </v-row>
+  </v-col>
 </template>
 <script>
 import axios from "axios";
