@@ -9,9 +9,10 @@
 
       <v-col align="center" justify="center" class="mb-5" cols="12">
         <v-pagination :length="totalPages" total-visible="8" v-model="page" @input="pageChange"></v-pagination>
-        <v-btn v-if="searchView" @click="startingData(); searchView = false">Clear</v-btn>
+        <v-btn v-if="searchView" @click="clear(); searchView = false">Clear</v-btn>
         <h1 style="padding-top:5%" v-if="!specimens">No results found</h1>
-        <v-simple-table v-if="specimens" style="max-width:40%">
+        <h1 style="padding-top:5%" v-if="loading">Loading...</h1>
+        <v-simple-table v-if="specimens && !loading" style="max-width:40%">
           <template v-slot:default>
             <thead>
               <tr>
@@ -23,7 +24,7 @@
             </thead>
             <tbody>
               <tr
-                @click="$router.push({name: 'DetailView', params: {id: specimen.id}})"
+                @click="$router.push({name: 'DetailView', params: {id: specimen.id, lastApi: latestApi}})"
                 v-for="specimen in specimens"
                 :key="specimen.id"
               >
@@ -55,12 +56,23 @@ export default {
     allFilters: null,
     allFields: null,
     searchView: false,
-    latestApi: null
+    latestApi: null,
+    loading: false
   }),
   mounted() {
     this.startingData();
   },
   methods: {
+    async clear() {
+      let firstData = null;
+      let startingApi =
+        "https://api.geocollections.info/specimen/?paginate_by=50&page=1";
+      await axios.get(startingApi).then(response => {
+        firstData = response.data;
+      });
+      this.specimens = firstData.results;
+      this.totalPages = Math.ceil(firstData.count / 50);
+    },
     async search(rows) {
       let searchResults = null;
       let check = true;
@@ -83,9 +95,11 @@ export default {
         alert("Please fill all fields");
         return;
       }
+      this.loading = true;
       await axios.get(searchApi).then(response => {
         searchResults = response.data;
       });
+      this.loading = false;
       this.latestApi = searchApi;
       this.searchView = true;
       this.totalPages = Math.ceil(searchResults.count / 50);
@@ -94,11 +108,17 @@ export default {
     async startingData() {
       let firstData = null;
       this.page = 1;
-      await axios
-        .get("https://api.geocollections.info/specimen/?paginate_by=50&page=1")
-        .then(response => {
-          firstData = response.data;
-        });
+      console.log(this.$route.params.lastApi);
+      let startingApi =
+        "https://api.geocollections.info/specimen/?paginate_by=50&page=1";
+      if (this.$route.params.lastApi) {
+        this.searchView = true;
+        startingApi = this.$route.params.lastApi;
+        this.latestApi = this.$route.params.lastApi;
+      }
+      await axios.get(startingApi).then(response => {
+        firstData = response.data;
+      });
       this.specimens = firstData.results;
       this.totalPages = Math.ceil(firstData.count / 50);
       this.allFields = Object.keys(this.specimens[0]);

@@ -3,7 +3,7 @@
     <v-row v-for="(row, index) in rows" :key="index" align="center" justify="center">
       <v-col style="max-width:15%; padding:0">
         <v-select
-          :id="row.id"
+          id="row.id"
           v-model="row.field"
           :items="allFields"
           label="Choose field"
@@ -15,7 +15,7 @@
       </v-col>
       <v-col style="max-width:12%;padding:0">
         <v-select
-          :id="row.id"
+          id="row.id"
           v-model="row.filter"
           :items="allFilters"
           label="Select filter"
@@ -28,8 +28,9 @@
       </v-col>
       <v-col style="max-width:15%;padding:0">
         <v-text-field
-          :id="row.id"
+          id="row.id"
           required
+          clearable
           placeholder="Enter search keyword..."
           style="max-width:100%; margin-left: 4%"
           v-model="row.keyWord"
