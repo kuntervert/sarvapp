@@ -1,6 +1,6 @@
 <template>
   <v-col class="text-left">
-    <v-btn @click="$router.push('/')">
+    <v-btn @click="$router.push({name: 'Homepage', params: {lastApi: lastApi}})">
       <v-icon>mdi-arrow-left</v-icon>Return
     </v-btn>
     <v-col style="max-width:50%" class="mb-5" cols="12">
@@ -27,14 +27,18 @@
 import axios from "axios";
 export default {
   data: () => ({
-    specimens: null
+    specimens: null,
+    lastApi: null,
   }),
   mounted() {
     this.getObjectData();
   },
   methods: {
+
+    //Gets chosen object data
     async getObjectData() {
       let data = null;
+      this.lastApi = this.$route.params.lastApi;
       let objectId = this.$route.params.id;
       await axios
         .get(`https://api.geocollections.info/specimen/?id__iexact=${objectId}`)
