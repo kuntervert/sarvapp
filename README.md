@@ -1,3 +1,18 @@
+## Tallinna Tehnikaülikooli geoloogia instituudi nooremarendaja konkursi proovitöö (SARV API).
+### Künter Evert
+
+* Vue.js 
+
+* Vuetify
+
+* Otsingu- ja detailvaatel erinev route
+
+* Vähemalt 5 otsinguvälja
+
+* Otsinguvälja filtreerimine (võrdub, sisaldab, algab, lõpeb)
+
+* Tabeli pagination
+
 
 
 ## Project setup
@@ -5,17 +20,17 @@
 npm install
 ```
 
-### Compiles and hot-reloads for development
+### Development environment
 ```
 npm run serve
 ```
 
-### Compiles and minifies for production
+### Production environment
 ```
 npm run build
 ```
 
-### Lints and fixes files
+### Lints and fixes 
 ```
 npm run lint
 ```
