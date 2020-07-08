@@ -1,7 +1,7 @@
 <template>
   <v-row style="display:block" align="center" justify="center">
     <v-row v-for="(row, index) in rows" :key="index" align="center" justify="center">
-      <v-col style="max-width:13%; padding:0">
+      <v-col style="max-width:15%; padding:0">
         <v-select
           :id="row.id"
           v-model="row.field"
@@ -13,7 +13,7 @@
           required
         ></v-select>
       </v-col>
-      <v-col style="max-width:10%;padding:0">
+      <v-col style="max-width:12%;padding:0">
         <v-select
           :id="row.id"
           v-model="row.filter"
@@ -26,7 +26,7 @@
           required
         ></v-select>
       </v-col>
-      <v-col style="max-width:18%;padding:0">
+      <v-col style="max-width:15%;padding:0">
         <v-text-field
           :id="row.id"
           required
@@ -74,7 +74,6 @@ export default {
     },
     search() {
       this.$emit("clicked", this.rows);
-      console.log(this.rows);
     }
   }
 };

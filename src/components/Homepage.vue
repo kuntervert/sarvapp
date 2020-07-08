@@ -10,6 +10,7 @@
       <v-col align="center" justify="center" class="mb-5" cols="12">
         <v-pagination :length="totalPages" total-visible="8" v-model="page" @input="pageChange"></v-pagination>
         <v-btn v-if="searchView" @click="startingData(); searchView = false">Clear</v-btn>
+        <h1 style="padding-top:5%" v-if="!specimens">No results found</h1>
         <v-simple-table v-if="specimens" style="max-width:40%">
           <template v-slot:default>
             <thead>
@@ -78,17 +79,15 @@ export default {
             `&${element.field}__${element.filter}=${element.keyWord}`;
         }
       });
-      if (check === false) {
+      if (check === false || rows.length < 1) {
         alert("Please fill all fields");
         return;
       }
-      console.log(searchApi);
       await axios.get(searchApi).then(response => {
         searchResults = response.data;
       });
       this.latestApi = searchApi;
       this.searchView = true;
-      console.log(searchResults);
       this.totalPages = Math.ceil(searchResults.count / 50);
       this.specimens = searchResults.results;
     },
@@ -141,7 +140,6 @@ export default {
             data = response.data;
           });
       }
-      console.log(data);
       this.specimens = data.results;
     }
   }
