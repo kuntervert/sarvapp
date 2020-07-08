@@ -33,6 +33,7 @@
           placeholder="Enter search keyword..."
           style="max-width:100%; margin-left: 4%"
           v-model="row.keyWord"
+          @keyup.enter="search()"
         ></v-text-field>
       </v-col>
       <v-btn style="background:none; box-shadow:none" @click="removeRow(index)">
