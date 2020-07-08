@@ -10,9 +10,9 @@
       <v-col align="center" justify="center" class="mb-5" cols="12">
         <v-pagination :length="totalPages" total-visible="8" v-model="page" @input="pageChange"></v-pagination>
         <v-btn v-if="searchView" @click="clear(); searchView = false">Clear</v-btn>
-        <h1 style="padding-top:5%" v-if="!specimens">No results found</h1>
-        <h1 style="padding-top:5%" v-if="loading">Loading...</h1>
-        <v-simple-table v-if="specimens && !loading" style="max-width:40%">
+        <h1 class="loadingH1" v-if="!specimens">No results found</h1>
+        <h1 class="loadingH1" v-if="loading">Loading...</h1>
+        <v-simple-table dense v-if="specimens && !loading" class="table">
           <template v-slot:default>
             <thead>
               <tr>
@@ -36,6 +36,7 @@
             </tbody>
           </template>
         </v-simple-table>
+        <v-pagination v-if="!loading" :length="totalPages" total-visible="8" v-model="page" @input="pageChange"></v-pagination>
       </v-col>
     </v-row>
   </v-container>
@@ -63,6 +64,8 @@ export default {
     this.startingData();
   },
   methods: {
+
+    //Resets to main page
     async clear() {
       let firstData = null;
       let startingApi =
@@ -70,9 +73,14 @@ export default {
       await axios.get(startingApi).then(response => {
         firstData = response.data;
       });
+      this.latestApi = startingApi
       this.specimens = firstData.results;
       this.totalPages = Math.ceil(firstData.count / 50);
+      this.searchView = false
+      this.page = 1
     },
+
+    //Search function
     async search(rows) {
       let searchResults = null;
       let check = true;
@@ -99,12 +107,15 @@ export default {
       await axios.get(searchApi).then(response => {
         searchResults = response.data;
       });
-      this.loading = false;
+      this.loading = false; 
       this.latestApi = searchApi;
       this.searchView = true;
       this.totalPages = Math.ceil(searchResults.count / 50);
       this.specimens = searchResults.results;
     },
+    
+    //Loads in first data
+    //Sets fields and filters
     async startingData() {
       let firstData = null;
       this.page = 1;
@@ -145,6 +156,8 @@ export default {
         }
       ];
     },
+
+    //Pagination function
     async pageChange(page) {
       let data = null;
       if (this.searchView) {
@@ -165,3 +178,14 @@ export default {
   }
 };
 </script>
+
+<style scoped lang="scss">
+
+.loadingH1 {
+  padding-top:5%;
+}
+.table {
+  max-width:40%;
+}
+
+</style>

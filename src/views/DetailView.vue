@@ -28,12 +28,14 @@ import axios from "axios";
 export default {
   data: () => ({
     specimens: null,
-    lastApi: null
+    lastApi: null,
   }),
   mounted() {
     this.getObjectData();
   },
   methods: {
+
+    //Gets chosen object data
     async getObjectData() {
       let data = null;
       this.lastApi = this.$route.params.lastApi;
