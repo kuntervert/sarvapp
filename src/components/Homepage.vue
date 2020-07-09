@@ -122,7 +122,7 @@ export default {
       console.log(this.$route.params.lastApi);
       let startingApi =
         "https://api.geocollections.info/specimen/?paginate_by=50&page=1";
-      if (this.$route.params.lastApi) {
+      if (this.$route.params.lastApi && this.$route.params.lastApi !== startingApi) {
         this.searchView = true;
         startingApi = this.$route.params.lastApi;
         this.latestApi = this.$route.params.lastApi;
